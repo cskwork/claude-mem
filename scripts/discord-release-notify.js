@@ -10,7 +10,7 @@
  * Requires DISCORD_UPDATES_WEBHOOK in .env file
  */
 
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { readFileSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -38,7 +38,7 @@ function loadEnv() {
 
 function getReleaseNotes(version) {
   try {
-    const notes = execSync(`gh release view ${version} --json body --jq '.body'`, {
+    const notes = execFileSync('gh', ['release', 'view', '--json', 'body', '--jq', '.body', '--', version], {
       encoding: 'utf-8',
       cwd: projectRoot,
     }).trim();

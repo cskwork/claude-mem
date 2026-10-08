@@ -6,14 +6,14 @@
  * Fetches all releases from GitHub and formats them into Keep a Changelog format.
  */
 
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { writeFileSync } from 'fs';
 
-function exec(command) {
+function exec(args) {
   try {
-    return execSync(command, { encoding: 'utf-8' });
+    return execFileSync('gh', args, { encoding: 'utf-8' });
   } catch (error) {
-    console.error(`Error executing command: ${command}`);
+    console.error(`Error executing command: gh ${args.join(' ')}`);
     console.error(error.message);
     process.exit(1);
   }
@@ -21,13 +21,13 @@ function exec(command) {
 
 function getReleases() {
   console.log('📋 Fetching releases from GitHub...');
-  const releasesJson = exec('gh release list --limit 1000 --json tagName,publishedAt,name');
+  const releasesJson = exec(['release', 'list', '--limit', '1000', '--json', 'tagName,publishedAt,name']);
   const releases = JSON.parse(releasesJson);
 
   // Fetch body for each release
   console.log(`📥 Fetching details for ${releases.length} releases...`);
   for (const release of releases) {
-    const body = exec(`gh release view ${release.tagName} --json body --jq '.body'`).trim();
+    const body = exec(['release', 'view', '--json', 'body', '--jq', '.body', '--', release.tagName]).trim();
     release.body = body;
   }
 
